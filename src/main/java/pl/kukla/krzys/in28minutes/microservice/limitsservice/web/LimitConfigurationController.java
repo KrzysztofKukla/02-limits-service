@@ -1,5 +1,6 @@
 package pl.kukla.krzys.in28minutes.microservice.limitsservice.web;
 
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +24,22 @@ public class LimitConfigurationController {
     @GetMapping
     public ResponseEntity<LimitConfiguration> retrieveLimitFromConfiguration() {
         LimitConfiguration limitConfiguration = limitService.getLimitConfiguration();
+        return ResponseEntity.ok(limitConfiguration);
+    }
+
+    @GetMapping("/fault-tolerance")
+    // 'fallbackMethod' will be called when 'retrieveLimitFromConfiguration' throws any Exception - RuntimeException in this case
+    @HystrixCommand(fallbackMethod = "fallbackHystrix")
+    public ResponseEntity<LimitConfiguration> hystrixTest() {
+        throw new RuntimeException();
+    }
+
+    //default behaviour for @HystrixCommand fallbackMethod
+    private ResponseEntity<LimitConfiguration> fallbackHystrix() {
+        LimitConfiguration limitConfiguration = LimitConfiguration.builder()
+            .minimum(10)
+            .maximum(10000)
+            .build();
         return ResponseEntity.ok(limitConfiguration);
     }
 

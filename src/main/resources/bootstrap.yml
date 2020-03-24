@@ -9,3 +9,12 @@ spring:
       uri: http://localhost:8888
 #  profiles:
 #    active: qa
+
+management:
+  #  security:
+  #    enabled: false
+  endpoints:
+    web:
+      #      enable all actuator URLs from Spring Boot 2.0.0
+      exposure:
+        include: "*"
